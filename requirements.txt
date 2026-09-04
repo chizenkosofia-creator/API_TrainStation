@@ -10,3 +10,5 @@ drf-spectacular
 Pillow
 requests
 psycopg2-binary
+python-dotenv
+django-wait-for-db
