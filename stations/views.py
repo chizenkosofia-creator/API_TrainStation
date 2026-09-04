@@ -19,7 +19,7 @@ from stations.models import (
     Journey,
     Order,
 )
-from stations.permissions import IsAdminOrIfAuthenticatedReadOnly
+from stations.permissions import IsAdminOrCrewOwnerReadOnly
 
 from stations.serializers import (
     StationSerializer,
@@ -47,7 +47,7 @@ class StationViewSet(
 ):
     queryset = Station.objects.all()
     serializer_class = StationSerializer
-    permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
+    permission_classes = (IsAdminOrCrewOwnerReadOnly,)
 
     def get_queryset(self):
         name = self.request.query_params.get("name")
@@ -79,7 +79,7 @@ class RouteViewSet(
 ):
     queryset = Route.objects.select_related("source", "destination")
     serializer_class = RouteSerializer
-    permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
+    permission_classes = (IsAdminOrCrewOwnerReadOnly,)
 
     def get_serializer_class(self):
         if self.action == "list":
@@ -96,7 +96,7 @@ class TrainTypeViewSet(
 ):
     queryset = TrainType.objects.all()
     serializer_class = TrainTypeSerializer
-    permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
+    permission_classes = (IsAdminOrCrewOwnerReadOnly,)
 
 
 class CrewViewSet(
@@ -106,7 +106,7 @@ class CrewViewSet(
 ):
     queryset = Crew.objects.all()
     serializer_class = CrewSerializer
-    permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
+    permission_classes = (IsAdminOrCrewOwnerReadOnly,)
 
 
 class TrainViewSet(
@@ -117,7 +117,7 @@ class TrainViewSet(
 ):
     queryset = Train.objects.select_related("train_type")
     serializer_class = TrainSerializer
-    permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
+    permission_classes = (IsAdminOrCrewOwnerReadOnly,)
 
     def get_queryset(self):
         name = self.request.query_params.get("name")
@@ -192,14 +192,15 @@ class JourneyViewSet(viewsets.ModelViewSet):
         )
     )
     serializer_class = JourneySerializer
-    permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
+    permission_classes = (IsAdminOrCrewOwnerReadOnly,)
 
     def get_queryset(self):
         date = self.request.query_params.get("date")
         route_id_str = self.request.query_params.get("route")
         train_id_str = self.request.query_params.get("train")
 
-        queryset = self.queryset
+        user = self.request.user
+        queryset = super().get_queryset()
 
         if date:
             date = datetime.strptime(date, "%Y-%m-%d").date()
@@ -211,7 +212,10 @@ class JourneyViewSet(viewsets.ModelViewSet):
         if train_id_str:
             queryset = queryset.filter(train_id=int(train_id_str))
 
-        return queryset.distinct()
+        if user.is_authenticated and not user.is_staff:
+            return queryset.filter(crew__worker_id=user.worker_id)
+
+        return queryset
 
     def get_serializer_class(self):
         if self.action == "list":

@@ -6,7 +6,7 @@ from train_station import settings
 class Crew(models.Model):
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
-    worker_id = models.IntegerField(max_length=9)
+    worker_id = models.IntegerField()
 
     def __str__(self):
         return self.first_name + " " + self.last_name
