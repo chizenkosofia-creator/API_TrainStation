@@ -64,8 +64,8 @@ class TicketSerializer(serializers.ModelSerializer):
         Ticket.validate_ticket(
             attrs["cargo"],
             attrs["seat"],
-            attrs["journey"].
-            ValidationError
+            attrs["journey"].train,
+            serializers.ValidationError,
         )
         return data
 
@@ -226,12 +226,6 @@ class JourneyDetailSerializer(serializers.ModelSerializer):
 
 class TicketListSerializer(TicketSerializer):
     Journey = JourneySessionListSerializer(many=False, read_only=True)
-
-
-class TicketSeatsSerializer(TicketSerializer):
-    class Meta:
-        model = Ticket
-        fields = ("row", "seat")
 
 
 class OrderSerializer(serializers.ModelSerializer):

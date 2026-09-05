@@ -63,7 +63,7 @@ class StationViewSet(
             OpenApiParameter(
                 "name",
                 type=OpenApiTypes.STR,
-                description="Filter by station name (ex. ?name=Kyiv)",
+                description="Filter by station name",
             ),
         ]
     )
@@ -166,12 +166,12 @@ class TrainViewSet(
             OpenApiParameter(
                 "train_type",
                 type=OpenApiTypes.INT,
-                description="Filter by train type id (ex. ?train_type=2)",
+                description="Filter by train type id",
             ),
             OpenApiParameter(
                 "name",
                 type=OpenApiTypes.STR,
-                description="Filter by train name (ex. ?name=Express)",
+                description="Filter by train name",
             ),
         ]
     )
